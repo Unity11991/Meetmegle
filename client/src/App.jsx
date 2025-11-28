@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './components/Landing';
@@ -7,6 +6,7 @@ import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
 import Profile from './components/Profile';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { getMediaStream } from './utils/media';
 import './App.css';
 
 const Home = () => {
@@ -16,12 +16,12 @@ const Home = () => {
 
     const handleStart = async () => {
         try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const mediaStream = await getMediaStream();
             setStream(mediaStream);
             setInRoom(true);
         } catch (err) {
             console.error("Error accessing media:", err);
-            alert(`Could not access camera / microphone: ${err.name}: ${err.message} `);
+            alert(`Could not access camera/microphone: ${err.name}: ${err.message}`);
         }
     };
 

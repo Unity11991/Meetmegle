@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "1764311104737",
+    "username": "sawan",
+    "email": "sawan@gmail.com",
+    "password": "$2b$12$BZEXEAyQTNXOn1dH17BRMupNO6FZh8PvIu/R7z9LhmY6vICvdA3ri",
+    "avatarUrl": "/uploads/1764311104737-1764311123290.png"
+  },
+  {
+    "_id": "1764311235021",
+    "username": "sawan1",
+    "email": "sawan1@gmail.com",
+    "password": "$2b$12$5le/YxjFNAwqi69Zhi9xB.vrvg5Axqm5PF0BX703UKiDuMNgxvssW",
+    "avatarUrl": "/uploads/1764311235021-1764311243516.png"
+  }
+]
