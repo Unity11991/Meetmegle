@@ -2,17 +2,34 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const path = require('path');
+
+dotenv.config();
+
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all for dev
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });
+
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/omegle-clone')
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 let waitingQueue = [];
 

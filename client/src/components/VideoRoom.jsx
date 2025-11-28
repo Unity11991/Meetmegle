@@ -2,20 +2,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, SkipForward, StopCircle, Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import { useWebRTC } from '../hooks/useWebRTC';
 
-const VideoRoom = ({ onStop }) => {
+const VideoRoom = ({ stream, onStop, user }) => {
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     const [isMuted, setIsMuted] = useState(false);
     const [isVideoOff, setIsVideoOff] = useState(false);
+    const [partnerInfo, setPartnerInfo] = useState(null);
 
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
     const chatEndRef = useRef(null);
 
-    const { status, startSearch, nextPartner, stop, sendMessage, socket, toggleAudio, toggleVideo } = useWebRTC(localVideoRef, remoteVideoRef);
+    const { status, nextPartner, stop, sendMessage, socket, toggleAudio, toggleVideo } = useWebRTC(localVideoRef, remoteVideoRef, stream);
 
     useEffect(() => {
-        startSearch();
         return () => {
             stop();
         }
@@ -32,9 +32,23 @@ const VideoRoom = ({ onStop }) => {
             setChatHistory(prev => [...prev, { sender: 'stranger', text: message }]);
         };
 
+        const handlePartnerInfo = (info) => {
+            setPartnerInfo(info);
+        };
+
         socket.on('message', handleMessage);
-        return () => socket.off('message', handleMessage);
-    }, [socket]);
+        socket.on('partner-info', handlePartnerInfo);
+
+        // Send our info when connected
+        if (status === 'connected' && user) {
+            socket.emit('send-info', { username: user.username, avatarUrl: user.avatarUrl });
+        }
+
+        return () => {
+            socket.off('message', handleMessage);
+            socket.off('partner-info', handlePartnerInfo);
+        };
+    }, [socket, status, user]);
 
     const handleSend = (e) => {
         e.preventDefault();
@@ -47,6 +61,7 @@ const VideoRoom = ({ onStop }) => {
 
     const handleNext = () => {
         setChatHistory([]);
+        setPartnerInfo(null);
         nextPartner();
     };
 
@@ -74,6 +89,12 @@ const VideoRoom = ({ onStop }) => {
                     <video ref={remoteVideoRef} autoPlay playsInline className="remote-video" />
                     {status === 'searching' && <div className="status-overlay">Searching for partner...</div>}
                     {status === 'idle' && <div className="status-overlay">Disconnected</div>}
+                    {status === 'connected' && partnerInfo && (
+                        <div className="partner-info-overlay">
+                            {partnerInfo.avatarUrl && <img src={`${import.meta.env.VITE_SERVER_URL}${partnerInfo.avatarUrl}`} alt="Avatar" className="partner-avatar" />}
+                            <span>{partnerInfo.username}</span>
+                        </div>
+                    )}
                 </div>
                 <div className="local-video-container">
                     <video ref={localVideoRef} autoPlay playsInline muted className="local-video" />
