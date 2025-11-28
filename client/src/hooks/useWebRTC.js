@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import io from 'socket.io-client';
 
-import io from 'socket.io-client';
-
 const SOCKET_URL = 'https://meetmegle.onrender.com' || 'http://localhost:5000';
 
 const ICE_SERVERS = {
